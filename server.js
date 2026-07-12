@@ -8,7 +8,7 @@ const { randomUUID } = require("crypto");
 
 const app = express();
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT) || 3032;
 const APP_URL = (process.env.APP_URL || `http://localhost:${PORT}`).replace(
   /\/+$/,
   ""
