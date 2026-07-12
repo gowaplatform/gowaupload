@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GoWAUpload</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb bg-orb--a" aria-hidden="true"></div>
+    <div class="bg-orb bg-orb--b" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-name">GoWAUpload</span>
+      </div>
+      <button
+        type="button"
+        class="theme-toggle"
+        id="themeToggle"
+        aria-label="Alternar tema"
+        title="Alternar tema"
+      >
+        <span class="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true">☀</span>
+        <span class="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true">☾</span>
+      </button>
+    </header>
+
+    <main class="hero">
+      <section class="hero-copy">
+        <h1 class="logo-display">GoWAUpload</h1>
+        <p class="tagline">
+          Envie seu arquivo e receba um link direto em segundos.
+        </p>
+      </section>
+
+      <section class="uploader" aria-labelledby="upload-title">
+        <h2 id="upload-title" class="visually-hidden">Área de upload</h2>
+
+        <div
+          class="dropzone"
+          id="dropzone"
+          tabindex="0"
+          role="button"
+          aria-controls="fileInput"
+        >
+          <input type="file" id="fileInput" accept="" hidden />
+          <div class="dropzone__visual" aria-hidden="true">
+            <svg viewBox="0 0 64 64" width="56" height="56" fill="none">
+              <path
+                d="M32 44V16M32 16l-10 10M32 16l10 10"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M12 40v8a4 4 0 0 0 4 4h32a4 4 0 0 0 4-4v-8"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+          <p class="dropzone__title">Arraste o arquivo aqui</p>
+          <p class="dropzone__hint">ou clique para selecionar</p>
+          <p class="dropzone__meta" id="dropzoneMeta">Carregando configurações...</p>
+        </div>
+
+        <div class="file-chip" id="fileChip" hidden>
+          <div class="file-chip__info">
+            <strong id="fileName"></strong>
+            <span id="fileSize"></span>
+          </div>
+          <button type="button" class="btn btn--ghost" id="clearFile">
+            Remover
+          </button>
+        </div>
+
+        <button type="button" class="btn btn--primary" id="uploadBtn" disabled>
+          Enviar arquivo
+        </button>
+
+        <div class="progress" id="progress" hidden>
+          <div class="progress__track">
+            <div class="progress__bar" id="progressBar"></div>
+          </div>
+          <span class="progress__label" id="progressLabel">0%</span>
+        </div>
+
+        <p class="notice" role="note" id="retentionNotice">
+          Este arquivo ficará no servidor por <strong id="retentionDays">30 dias</strong>. Após
+          esse período, será excluído automaticamente.
+        </p>
+
+        <div class="result" id="result" hidden>
+          <p class="result__label">Link direto do arquivo</p>
+          <div class="result__row">
+            <input type="text" id="fileUrl" readonly />
+            <button type="button" class="btn btn--secondary" id="copyBtn">
+              Copiar
+            </button>
+          </div>
+          <a class="result__open" id="openLink" href="#" target="_blank" rel="noopener"
+            >Abrir arquivo</a
+          >
+        </div>
+
+        <p class="status" id="status" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>GoWAUpload</span>
+      <span id="footerRetention">Retenção de 30 dias</span>
+    </footer>
+
+    <script src="/js/app.js"></script>
+  </body>
+</html>

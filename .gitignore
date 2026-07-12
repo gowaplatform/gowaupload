@@ -1,0 +1,8 @@
+node_modules/
+files/*
+!files/.gitkeep
+.env
+.DS_Store
+*.log
+.idea/
+.vscode/
