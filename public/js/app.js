@@ -93,7 +93,7 @@
 
   function setStatus(message, type = "") {
     status.textContent = message;
-    status.className = `status${type ? ` is-${type}` : ""}`;
+    status.className = type ? `status is-${type}` : "status";
   }
 
   function extensionOf(name) {
@@ -210,14 +210,17 @@
     xhr.addEventListener("load", () => {
       uploadBtn.disabled = false;
       let data = null;
-      try {
-        data = JSON.parse(xhr.responseText);
-      } catch {
-        setStatus("Resposta inválida do servidor.", "error");
-        return;
+      const rawResponse = xhr.responseText || "";
+
+      if (rawResponse) {
+        try {
+          data = JSON.parse(rawResponse);
+        } catch {
+          data = null;
+        }
       }
 
-      if (xhr.status >= 200 && xhr.status < 300 && data.success) {
+      if (xhr.status >= 200 && xhr.status < 300 && data?.success) {
         progressBar.style.width = "100%";
         progressLabel.textContent = "100%";
         fileUrl.value = data.url;
@@ -228,8 +231,26 @@
           `Upload concluído. O arquivo ficará disponível por ${days} dias.`,
           "ok"
         );
+        return;
+      }
+
+      if (data?.error) {
+        setStatus(data.error, "error");
+        return;
+      }
+
+      if (xhr.status === 413) {
+        setStatus(
+          `Arquivo muito grande. O tamanho máximo é ${config.maxFileSizeMb} MB.`,
+          "error"
+        );
+        return;
+      }
+
+      if (rawResponse.trim()) {
+        setStatus(`Falha no upload: ${rawResponse.trim()}`, "error");
       } else {
-        setStatus(data.error || "Falha no upload.", "error");
+        setStatus(`Falha no upload. Código ${xhr.status}.`, "error");
       }
     });
 

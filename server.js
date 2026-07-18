@@ -118,7 +118,7 @@ app.post("/api/upload", (req, res) => {
   upload.single("file")(req, res, (err) => {
     if (err instanceof multer.MulterError) {
       if (err.code === "LIMIT_FILE_SIZE") {
-        return res.status(400).json({
+        return res.status(413).json({
           error: `Arquivo muito grande. O tamanho máximo é ${MAX_FILE_SIZE_MB} MB.`,
         });
       }
@@ -148,6 +148,14 @@ app.post("/api/upload", (req, res) => {
 
 app.use((err, _req, res, _next) => {
   console.error(err);
+  if (res.headersSent) {
+    return;
+  }
+  if (err.code === "LIMIT_FILE_SIZE" || err.type === "entity.too.large" || err.status === 413) {
+    return res.status(413).json({
+      error: `Arquivo muito grande. O tamanho máximo é ${MAX_FILE_SIZE_MB} MB.`,
+    });
+  }
   res.status(500).json({ error: "Erro interno do servidor." });
 });
 
