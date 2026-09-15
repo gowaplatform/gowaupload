@@ -13,7 +13,7 @@ const APP_URL = (process.env.APP_URL || `http://localhost:${PORT}`).replace(
   /\/+$/,
   ""
 );
-const MAX_FILE_SIZE_MB = Number(process.env.MAX_FILE_SIZE_MB) || 128;
+const MAX_FILE_SIZE_MB = Number(process.env.MAX_FILE_SIZE_MB) || 100;
 const MAX_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
 const RETENTION_DAYS = Number(process.env.RETENTION_DAYS) || 30;
 const RETENTION_MS = RETENTION_DAYS * 24 * 60 * 60 * 1000;
@@ -23,7 +23,7 @@ const FILES_DIR = path.isAbsolute(UPLOAD_DIR_RAW)
   : path.join(__dirname, UPLOAD_DIR_RAW);
 
 const ALLOWED_LIST = (process.env.ALLOWED_EXTENSIONS ||
-  "zip,mp4,ogg,aac,mp3,xls,xlsx,doc,docx,txt,jpg,jpeg,png,gif,csv")
+  "zip,mp4,ogg,aac,mp3,xls,xlsx,doc,docx,pdf,txt,jpg,jpeg,png,gif,csv")
   .split(",")
   .map((ext) => ext.trim().toLowerCase().replace(/^\./, ""))
   .filter(Boolean);

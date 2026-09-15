@@ -21,8 +21,8 @@
 
   let selectedFile = null;
   let config = {
-    maxFileSizeMb: 128,
-    maxFileSizeBytes: 128 * 1024 * 1024,
+    maxFileSizeMb: 100,
+    maxFileSizeBytes: 100 * 1024 * 1024,
     allowedExtensions: [
       "zip",
       "mp4",
@@ -33,6 +33,7 @@
       "xlsx",
       "doc",
       "docx",
+      "pdf",
       "txt",
       "jpg",
       "jpeg",
