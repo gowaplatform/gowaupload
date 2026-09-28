@@ -41,7 +41,40 @@
         </p>
       </section>
 
-      <section class="uploader" aria-labelledby="upload-title">
+      <div class="tabs" role="tablist" aria-label="Funções">
+        <button
+          type="button"
+          class="tabs__button is-active"
+          id="uploadTab"
+          role="tab"
+          aria-selected="true"
+          aria-controls="uploadPanel"
+          tabindex="0"
+          data-tab="upload"
+        >
+          Enviar Arquivo
+        </button>
+        <button
+          type="button"
+          class="tabs__button"
+          id="csvTab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="csvPanel"
+          tabindex="-1"
+          data-tab="csv"
+        >
+          Gerar CSV
+        </button>
+      </div>
+
+      <section
+        class="uploader tab-panel"
+        id="uploadPanel"
+        role="tabpanel"
+        aria-labelledby="uploadTab"
+        data-tab-panel="upload"
+      >
         <h2 id="upload-title" class="visually-hidden">Área de upload</h2>
 
         <div
@@ -114,6 +147,56 @@
         </div>
 
         <p class="status" id="status" role="status" aria-live="polite"></p>
+      </section>
+
+      <section
+        class="uploader tab-panel csv-panel"
+        id="csvPanel"
+        role="tabpanel"
+        aria-labelledby="csvTab"
+        data-tab-panel="csv"
+        hidden
+      >
+        <label class="text-input__label" for="csvText">Texto</label>
+        <p class="csv-format-hint" id="csvFormatHint">
+          Formato: número completo do telefone, uma vírgula e o nome do contato. Exemplo:
+          <code>5511987654321,Maria Clara da Silva</code>
+          <code>5531985551234,João Antônio</code>
+        </p>
+        <div class="text-input__paste-action">
+          <button type="button" class="btn btn--primary" id="pasteBtn">
+            Colar
+          </button>
+        </div>
+        <textarea
+          class="text-input"
+          id="csvText"
+          rows="16"
+          placeholder="Cole ou digite o conteúdo aqui"
+          aria-describedby="csvFormatHint csvLineCount pasteStatus"
+        ></textarea>
+        <div class="country-code-field">
+          <label class="text-input__label" for="countryCode">Incluir código do país</label>
+          <input
+            class="country-code-input"
+            id="countryCode"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+          />
+        </div>
+        <div class="text-input__footer">
+          <span class="text-input__count" id="csvLineCount" aria-live="polite">1 / 1000 linhas</span>
+          <div class="text-input__actions">
+            <button type="button" class="btn btn--secondary" id="adjustCsvBtn">
+              Ajustar CSV
+            </button>
+            <button type="button" class="btn btn--secondary" id="downloadCsvBtn">
+              Download CSV
+            </button>
+          </div>
+        </div>
+        <output class="status" id="pasteStatus" aria-live="polite"></output>
       </section>
     </main>
 
