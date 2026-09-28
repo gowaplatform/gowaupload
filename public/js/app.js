@@ -24,6 +24,7 @@
   const csvLineCount = document.getElementById("csvLineCount");
   const countryCodeInput = document.getElementById("countryCode");
   const pasteBtn = document.getElementById("pasteBtn");
+  const clearCsvTextBtn = document.getElementById("clearCsvTextBtn");
   const adjustCsvBtn = document.getElementById("adjustCsvBtn");
   const downloadCsvBtn = document.getElementById("downloadCsvBtn");
   const pasteStatus = document.getElementById("pasteStatus");
@@ -68,6 +69,12 @@
   }
 
   csvText.addEventListener("input", updateCsvLineCount);
+  clearCsvTextBtn.addEventListener("click", () => {
+    csvText.value = "";
+    csvText.dispatchEvent(new Event("input", { bubbles: true }));
+    csvText.focus();
+  });
+
   pasteBtn.addEventListener("click", async () => {
     try {
       const clipboardText = await navigator.clipboard.readText();
