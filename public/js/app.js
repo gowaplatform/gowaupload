@@ -58,14 +58,14 @@
 
   function updateCsvLineCount() {
     const lines = csvText.value.split(/\r\n|\r|\n/);
-    if (lines.length > 1000) {
-      csvText.value = lines.slice(0, 1000).join("\n");
-      pasteStatus.textContent = "Limite de 1000 linhas atingido; o restante foi removido.";
+    if (lines.length > 1001) {
+      csvText.value = lines.slice(0, 1001).join("\n");
+      pasteStatus.textContent = "Limite de 1001 linhas atingido; o restante foi removido.";
     } else {
       pasteStatus.textContent = "";
     }
     const lineCount = csvText.value.split(/\r\n|\r|\n/).length;
-    csvLineCount.textContent = `${lineCount} / 1000 linhas`;
+    csvLineCount.textContent = `${lineCount} / 1001 linhas`;
   }
 
   csvText.addEventListener("input", updateCsvLineCount);
@@ -126,13 +126,13 @@
       .slice(hasHeader ? 1 : 0)
       .map((line) => adjustCsvLine(line, countryCode));
     const outputLines = ["telefone,nome", ...records];
-    const wasTruncated = outputLines.length > 1000;
+    const wasTruncated = outputLines.length > 1001;
 
-    csvText.value = outputLines.slice(0, 1000).join("\n");
+    csvText.value = outputLines.slice(0, 1001).join("\n");
     csvText.dispatchEvent(new Event("input", { bubbles: true }));
     pasteStatus.textContent = wasTruncated
-      ? "CSV ajustado; o conteúdo foi limitado a 1000 linhas."
-      : `CSV ajustado: ${Math.min(records.length, 999)} registros.`;
+      ? "CSV ajustado; o conteúdo foi limitado a 1001 linhas."
+      : `CSV ajustado: ${Math.min(records.length, 1000)} registros.`;
   });
 
   downloadCsvBtn.addEventListener("click", () => {
