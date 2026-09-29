@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GoWAUpload</title>
+    <title>GoWA Upload File</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,7 +19,7 @@
     <header class="topbar">
       <div class="brand">
         <span class="brand-mark" aria-hidden="true"></span>
-        <span class="brand-name">GoWAUpload</span>
+        <span class="brand-name">GoWA Upload</span>
       </div>
       <button
         type="button"
@@ -35,9 +35,9 @@
 
     <main class="hero">
       <section class="hero-copy">
-        <h1 class="logo-display">GoWAUpload</h1>
+        <h1 class="logo-display">GoWA Upload</h1>
         <p class="tagline">
-          Envie seu arquivo e receba um link direto em segundos.
+          Envie seu arquivo e receba um link direto ou gere um CSV válido para importar contatos e realizar disparos para Plataforma GoWA.
         </p>
       </section>
 
@@ -158,10 +158,17 @@
         hidden
       >
         <label class="text-input__label" for="csvText">Texto</label>
-        <p class="csv-format-hint" id="csvFormatHint">
-          Formato: número completo do telefone, uma vírgula e o nome do contato. Exemplo:
+        <br class="csv-format-hint" id="csvFormatHint">
+          Informe no máximo 1000 linhas de números de telefone válidos para gerar um arquivo CSV.</br>
+          Formato:  Cada linha deve conter apenas o número do telefone ou o número do telefone seguido de uma vírgula e o nome do contato. Exemplo:
+          <code>5511987654321</code>
+          <code>5531985551234</code>
+          </br>ou
           <code>5511987654321,Maria Clara da Silva</code>
           <code>5531985551234,João Antônio</code>
+        </p>
+        <p class="csv-format-hint" id="csvFormatHint">
+          Depois colar ou digitar o conteúdo, clique em "Ajustar CSV" para gerar um arquivo CSV válido. Após clique em "Download CSV" para baixar o arquivo.  
         </p>
         <div class="text-input__paste-action">
           <button type="button" class="btn btn--primary" id="pasteBtn">
