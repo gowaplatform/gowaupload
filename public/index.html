@@ -66,6 +66,18 @@
         >
           Gerar CSV
         </button>
+        <button
+          type="button"
+          class="tabs__button"
+          id="csvToExcelTab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="csvToExcelPanel"
+          tabindex="-1"
+          data-tab="csv-to-excel"
+        >
+          Converter CSV para Excel
+        </button>
       </div>
 
       <section
@@ -210,6 +222,77 @@
           </div>
         </div>
         <output class="status" id="pasteStatus" aria-live="polite"></output>
+      </section>
+
+      <section
+        class="uploader tab-panel"
+        id="csvToExcelPanel"
+        role="tabpanel"
+        aria-labelledby="csvToExcelTab"
+        data-tab-panel="csv-to-excel"
+        hidden
+      >
+        <h2 id="csv-to-excel-title" class="visually-hidden">Converter CSV para Excel</h2>
+        <p class="csv-format-hint">
+          Envie um arquivo CSV, como <code>@disparo-154.csv</code>. Depois do envio, clique em
+          "Converter para Excel" para baixar a planilha no formato .xlsx.
+        </p>
+
+        <div
+          class="dropzone"
+          id="csvConvertDropzone"
+          tabindex="0"
+          role="button"
+          aria-controls="csvConvertFileInput"
+        >
+          <input type="file" id="csvConvertFileInput" accept=".csv,text/csv" hidden />
+          <div class="dropzone__visual" aria-hidden="true">
+            <svg viewBox="0 0 64 64" width="56" height="56" fill="none">
+              <path
+                d="M32 44V16M32 16l-10 10M32 16l10 10"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M12 40v8a4 4 0 0 0 4 4h32a4 4 0 0 0 4-4v-8"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+          <p class="dropzone__title">Arraste o arquivo CSV aqui</p>
+          <p class="dropzone__hint">ou clique para selecionar</p>
+          <p class="dropzone__meta">Formato .csv — tamanho máximo de acordo com a configuração do servidor</p>
+        </div>
+
+        <div class="file-chip" id="csvConvertFileChip" hidden>
+          <div class="file-chip__info">
+            <strong id="csvConvertFileName"></strong>
+            <span id="csvConvertFileSize"></span>
+          </div>
+          <button type="button" class="btn btn--ghost" id="clearCsvConvertFile">
+            Remover
+          </button>
+        </div>
+
+        <button type="button" class="btn btn--primary" id="uploadCsvConvertBtn" disabled>
+          Enviar CSV
+        </button>
+
+        <div class="progress" id="csvConvertProgress" hidden>
+          <div class="progress__track">
+            <div class="progress__bar" id="csvConvertProgressBar"></div>
+          </div>
+          <span class="progress__label" id="csvConvertProgressLabel">0%</span>
+        </div>
+
+        <button type="button" class="btn btn--primary" id="convertCsvBtn" hidden>
+          Converter para Excel
+        </button>
+        <p class="status" id="csvConvertStatus" role="status" aria-live="polite"></p>
       </section>
     </main>
 

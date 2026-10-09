@@ -20,6 +20,18 @@
   const footerRetention = document.getElementById("footerRetention");
   const tabs = [...document.querySelectorAll("[data-tab]")];
   const tabPanels = [...document.querySelectorAll("[data-tab-panel]")];
+  const csvConvertDropzone = document.getElementById("csvConvertDropzone");
+  const csvConvertFileInput = document.getElementById("csvConvertFileInput");
+  const csvConvertFileChip = document.getElementById("csvConvertFileChip");
+  const csvConvertFileName = document.getElementById("csvConvertFileName");
+  const csvConvertFileSize = document.getElementById("csvConvertFileSize");
+  const clearCsvConvertFile = document.getElementById("clearCsvConvertFile");
+  const uploadCsvConvertBtn = document.getElementById("uploadCsvConvertBtn");
+  const csvConvertProgress = document.getElementById("csvConvertProgress");
+  const csvConvertProgressBar = document.getElementById("csvConvertProgressBar");
+  const csvConvertProgressLabel = document.getElementById("csvConvertProgressLabel");
+  const convertCsvBtn = document.getElementById("convertCsvBtn");
+  const csvConvertStatus = document.getElementById("csvConvertStatus");
   const csvText = document.getElementById("csvText");
   const csvLineCount = document.getElementById("csvLineCount");
   const countryCodeInput = document.getElementById("countryCode");
@@ -285,6 +297,173 @@
     resetResult();
     setStatus("");
   }
+
+  let selectedCsvFile = null;
+  let uploadedCsvFilename = null;
+  let csvUploading = false;
+
+  function setCsvConvertStatus(message, type = "") {
+    csvConvertStatus.textContent = message;
+    csvConvertStatus.className = type ? `status is-${type}` : "status";
+  }
+
+  function clearCsvConvertSelection() {
+    selectedCsvFile = null;
+    uploadedCsvFilename = null;
+    csvConvertFileInput.value = "";
+    csvConvertFileChip.hidden = true;
+    uploadCsvConvertBtn.disabled = true;
+    convertCsvBtn.hidden = true;
+    csvConvertProgress.hidden = true;
+    csvConvertProgressBar.style.width = "0%";
+    csvConvertProgressLabel.textContent = "0%";
+    setCsvConvertStatus("");
+  }
+
+  function selectCsvConvertFile(file) {
+    if (!file) return;
+    clearCsvConvertSelection();
+
+    if (extensionOf(file.name) !== "csv") {
+      setCsvConvertStatus("Selecione um arquivo no formato .csv.", "error");
+      return;
+    }
+    if (file.size > config.maxFileSizeBytes) {
+      setCsvConvertStatus(
+        `Arquivo muito grande. O tamanho máximo é ${config.maxFileSizeMb} MB.`,
+        "error"
+      );
+      return;
+    }
+
+    selectedCsvFile = file;
+    csvConvertFileName.textContent = file.name;
+    csvConvertFileSize.textContent = formatBytes(file.size);
+    csvConvertFileChip.hidden = false;
+    uploadCsvConvertBtn.disabled = false;
+  }
+
+  csvConvertDropzone.addEventListener("click", () => {
+    if (!csvUploading) csvConvertFileInput.click();
+  });
+  csvConvertDropzone.addEventListener("keydown", (event) => {
+    if (!csvUploading && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault();
+      csvConvertFileInput.click();
+    }
+  });
+  csvConvertFileInput.addEventListener("change", () => {
+    selectCsvConvertFile(csvConvertFileInput.files?.[0]);
+  });
+  ["dragenter", "dragover"].forEach((eventName) => {
+    csvConvertDropzone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      if (csvUploading) return;
+      csvConvertDropzone.classList.add("is-dragover");
+    });
+  });
+  ["dragleave", "drop"].forEach((eventName) => {
+    csvConvertDropzone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      csvConvertDropzone.classList.remove("is-dragover");
+    });
+  });
+  csvConvertDropzone.addEventListener("drop", (event) => {
+    if (csvUploading) return;
+    selectCsvConvertFile(event.dataTransfer?.files?.[0]);
+  });
+  clearCsvConvertFile.addEventListener("click", clearCsvConvertSelection);
+
+  uploadCsvConvertBtn.addEventListener("click", () => {
+    if (!selectedCsvFile) return;
+
+    const formData = new FormData();
+    formData.append("file", selectedCsvFile);
+    csvUploading = true;
+    uploadCsvConvertBtn.disabled = true;
+    clearCsvConvertFile.disabled = true;
+    csvConvertProgress.hidden = false;
+    csvConvertProgressBar.style.width = "0%";
+    csvConvertProgressLabel.textContent = "0%";
+    setCsvConvertStatus("Enviando CSV...");
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/upload");
+    xhr.upload.addEventListener("progress", (event) => {
+      if (!event.lengthComputable) return;
+      const percent = Math.round((event.loaded / event.total) * 100);
+      csvConvertProgressBar.style.width = `${percent}%`;
+      csvConvertProgressLabel.textContent = `${percent}%`;
+    });
+    xhr.addEventListener("load", () => {
+      csvUploading = false;
+      uploadCsvConvertBtn.disabled = false;
+      clearCsvConvertFile.disabled = false;
+      let data = null;
+      try {
+        data = JSON.parse(xhr.responseText || "");
+      } catch {
+        data = null;
+      }
+
+      if (xhr.status >= 200 && xhr.status < 300 && data?.success) {
+        uploadedCsvFilename = data.filename;
+        csvConvertProgressBar.style.width = "100%";
+        csvConvertProgressLabel.textContent = "100%";
+        convertCsvBtn.hidden = false;
+        setCsvConvertStatus(
+          "CSV enviado. Agora você pode converter o arquivo para Excel.",
+          "ok"
+        );
+        return;
+      }
+      setCsvConvertStatus(
+        data?.error || `Falha ao enviar o CSV. Código ${xhr.status}.`,
+        "error"
+      );
+    });
+    xhr.addEventListener("error", () => {
+      csvUploading = false;
+      uploadCsvConvertBtn.disabled = false;
+      clearCsvConvertFile.disabled = false;
+      setCsvConvertStatus("Erro de rede ao enviar o CSV.", "error");
+    });
+    xhr.send(formData);
+  });
+
+  convertCsvBtn.addEventListener("click", async () => {
+    if (!uploadedCsvFilename) return;
+
+    convertCsvBtn.disabled = true;
+    setCsvConvertStatus("Convertendo para Excel...");
+    try {
+      const response = await fetch(
+        `/api/convert-csv/${encodeURIComponent(uploadedCsvFilename)}`,
+        { method: "POST" }
+      );
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || `Falha na conversão. Código ${response.status}.`);
+      }
+
+      const excelBlob = await response.blob();
+      if (!excelBlob.size) throw new Error("O arquivo Excel gerado está vazio.");
+
+      const downloadUrl = URL.createObjectURL(excelBlob);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = downloadUrl;
+      downloadLink.download = `${selectedCsvFile.name.replace(/\.[^.]+$/, "")}.xlsx`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
+      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 0);
+      setCsvConvertStatus("Conversão concluída. O download do arquivo Excel foi iniciado.", "ok");
+    } catch (error) {
+      setCsvConvertStatus(error.message, "error");
+    } finally {
+      convertCsvBtn.disabled = false;
+    }
+  });
 
   dropzone.addEventListener("click", () => fileInput.click());
   dropzone.addEventListener("keydown", (e) => {

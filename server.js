@@ -5,6 +5,8 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const { randomUUID } = require("crypto");
+const ExcelJS = require("exceljs");
+const { parse } = require("csv-parse/sync");
 
 const app = express();
 
@@ -144,6 +146,72 @@ app.post("/api/upload", (req, res) => {
       retentionDays: RETENTION_DAYS,
     });
   });
+});
+
+app.post("/api/convert-csv/:filename", async (req, res) => {
+  const filename = req.params.filename;
+  if (
+    path.basename(filename) !== filename ||
+    !/^[0-9a-f-]{36}_.+\.csv$/i.test(filename)
+  ) {
+    return res.status(400).json({ error: "Arquivo CSV inválido." });
+  }
+
+  let csvBuffer;
+  try {
+    csvBuffer = await fs.promises.readFile(path.join(FILES_DIR, filename));
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      return res.status(404).json({ error: "CSV enviado não encontrado ou expirado." });
+    }
+    console.error("Falha ao ler o CSV para conversão:", err);
+    return res.status(500).json({ error: "Não foi possível ler o arquivo CSV." });
+  }
+
+  if (!csvBuffer.toString("utf8").replace(/^\uFEFF/, "").trim()) {
+    return res.status(400).json({ error: "O arquivo CSV está vazio." });
+  }
+
+  try {
+    const records = parse(csvBuffer.toString("utf8"), {
+      bom: true,
+      relax_column_count: true,
+      skip_empty_lines: false,
+    });
+    if (
+      records.length > 1048576 ||
+      records.some((record) => record.length > 16384)
+    ) {
+      return res.status(400).json({
+        error: "O CSV excede o limite de linhas ou colunas suportado pelo Excel.",
+      });
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Dados");
+    worksheet.addRows(records);
+    const excelBuffer = await workbook.xlsx.writeBuffer();
+    const originalBase = path
+      .basename(filename, path.extname(filename))
+      .replace(/^[0-9a-f-]{36}_/i, "");
+    const outputFilename = `${originalBase || "convertido"}.xlsx`;
+
+    res
+      .set(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      )
+      .set(
+        "Content-Disposition",
+        `attachment; filename*=UTF-8''${encodeURIComponent(outputFilename)}`
+      )
+      .send(excelBuffer);
+  } catch (err) {
+    console.error("Falha ao converter CSV para Excel:", err);
+    return res.status(400).json({
+      error: "Não foi possível converter o CSV. Verifique se o arquivo está no formato correto.",
+    });
+  }
 });
 
 app.use((err, _req, res, _next) => {

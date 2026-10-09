@@ -228,7 +228,7 @@ body {
 
 .tabs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.35rem;
   padding: 0.35rem;
   border: 1px solid var(--border);
@@ -244,6 +244,7 @@ body {
   background: transparent;
   color: var(--muted);
   font: inherit;
+  font-size: 0.92rem;
   font-weight: 800;
   cursor: pointer;
   transition: background var(--transition), color var(--transition);
@@ -627,6 +628,10 @@ body {
 }
 
 @media (max-width: 560px) {
+  .tabs {
+    grid-template-columns: 1fr;
+  }
+
   .result__row {
     grid-template-columns: 1fr;
   }
