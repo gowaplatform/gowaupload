@@ -35,6 +35,7 @@
   const csvText = document.getElementById("csvText");
   const csvLineCount = document.getElementById("csvLineCount");
   const countryCodeInput = document.getElementById("countryCode");
+  const csvLabelsInput = document.getElementById("csvLabels");
   const pasteBtn = document.getElementById("pasteBtn");
   const clearCsvTextBtn = document.getElementById("clearCsvTextBtn");
   const adjustCsvBtn = document.getElementById("adjustCsvBtn");
@@ -108,7 +109,11 @@
     }
   });
 
-  function adjustCsvLine(line, countryCode) {
+  function formatCsvField(value) {
+    return /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+  }
+
+  function adjustCsvLine(line, countryCode, labels) {
     const separatorIndex = line.indexOf(",");
     let phone = (separatorIndex < 0 ? line : line.slice(0, separatorIndex))
       .replace(/\D/g, "");
@@ -124,6 +129,9 @@
     name = name.replace(/""/g, '"');
     name = name.replace(/'/g, "´").replace(/"/g, "´´");
 
+    if (labels) {
+      return `${formatCsvField(name)},${phone},"${labels.replace(/"/g, '""')}"`;
+    }
     return `${phone},"${name}"`;
   }
 
@@ -134,10 +142,11 @@
       .filter((line) => line.trim());
     const hasHeader = /^telefone\s*,\s*nome$/i.test((lines[0] || "").trim());
     const countryCode = countryCodeInput.value.replace(/\D/g, "");
+    const labels = csvLabelsInput.value.trim();
     const records = lines
       .slice(hasHeader ? 1 : 0)
-      .map((line) => adjustCsvLine(line, countryCode));
-    const outputLines = ["telefone,nome", ...records];
+      .map((line) => adjustCsvLine(line, countryCode, labels));
+    const outputLines = [labels ? "name,phone_number,labels" : "telefone,nome", ...records];
     const wasTruncated = outputLines.length > 1001;
 
     csvText.value = outputLines.slice(0, 1001).join("\n");

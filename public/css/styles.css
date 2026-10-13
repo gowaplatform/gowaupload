@@ -334,6 +334,15 @@ body {
   max-width: 18rem;
 }
 
+.labels-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.labels-input {
+  max-width: 32rem;
+}
+
 .country-code-input {
   width: 100%;
   min-height: 46px;
