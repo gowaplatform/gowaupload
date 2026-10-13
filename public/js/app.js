@@ -109,10 +109,6 @@
     }
   });
 
-  function formatCsvField(value) {
-    return /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
-  }
-
   function adjustCsvLine(line, countryCode, labels) {
     const commaIndex = line.indexOf(",");
     const semicolonIndex = line.indexOf(";");
@@ -135,11 +131,13 @@
     }
     name = name.replace(/""/g, '"').trim();
     name = name.replace(/'/g, "´").replace(/"/g, "´´");
+    const quotedName = `"${name.replace(/"/g, '""')}"`;
+    const formattedPhone = phone ? `+${phone}` : "";
 
     if (labels) {
-      return `${formatCsvField(name)},${phone},"${labels.replace(/"/g, '""')}"`;
+      return `${quotedName},${formattedPhone},"${labels.replace(/"/g, '""')}"`;
     }
-    return `${phone},"${name}"`;
+    return `${quotedName},${formattedPhone}`;
   }
 
   adjustCsvBtn.addEventListener("click", () => {
