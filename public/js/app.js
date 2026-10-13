@@ -114,8 +114,15 @@
   }
 
   function adjustCsvLine(line, countryCode, labels) {
-    const separatorIndex = line.indexOf(",");
+    const commaIndex = line.indexOf(",");
+    const semicolonIndex = line.indexOf(";");
+    const separatorIndex = commaIndex < 0
+      ? semicolonIndex
+      : semicolonIndex < 0
+        ? commaIndex
+        : Math.min(commaIndex, semicolonIndex);
     let phone = (separatorIndex < 0 ? line : line.slice(0, separatorIndex))
+      .trim()
       .replace(/\D/g, "");
     if (countryCode && phone && !phone.startsWith(countryCode)) {
       phone = `${countryCode}${phone}`;
@@ -126,7 +133,7 @@
       name = name.slice(1);
       if (name.endsWith('"')) name = name.slice(0, -1);
     }
-    name = name.replace(/""/g, '"');
+    name = name.replace(/""/g, '"').trim();
     name = name.replace(/'/g, "´").replace(/"/g, "´´");
 
     if (labels) {
@@ -140,13 +147,14 @@
       .replace(/^\uFEFF/, "")
       .split(/\r\n|\r|\n/)
       .filter((line) => line.trim());
-    const hasHeader = /^telefone\s*,\s*nome$/i.test((lines[0] || "").trim());
+    const hasHeader = /^(?:(?:telefone|phone_number)\s*[;,]\s*(?:nome|name)|(?:nome|name)\s*[;,]\s*(?:telefone|phone_number))$/i
+      .test((lines[0] || "").trim());
     const countryCode = countryCodeInput.value.replace(/\D/g, "");
     const labels = csvLabelsInput.value.trim();
     const records = lines
       .slice(hasHeader ? 1 : 0)
       .map((line) => adjustCsvLine(line, countryCode, labels));
-    const outputLines = [labels ? "name,phone_number,labels" : "telefone,nome", ...records];
+    const outputLines = [labels ? "name,phone_number,labels" : "name,phone_number", ...records];
     const wasTruncated = outputLines.length > 1001;
 
     csvText.value = outputLines.slice(0, 1001).join("\n");
