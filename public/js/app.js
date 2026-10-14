@@ -110,20 +110,7 @@
   });
 
   function adjustCsvLine(line, countryCode, labels) {
-    const commaIndex = line.indexOf(",");
-    const semicolonIndex = line.indexOf(";");
-    const whitespaceSeparator = line.match(/^([+]?[0-9().-]+)[\t ]+(?=[^ \t,;])/);
-    const whitespaceIndex = whitespaceSeparator ? whitespaceSeparator[1].length : -1;
-    const explicitSeparatorIndex = commaIndex < 0
-      ? semicolonIndex
-      : semicolonIndex < 0
-        ? commaIndex
-        : Math.min(commaIndex, semicolonIndex);
-    const separatorIndex = explicitSeparatorIndex < 0
-      ? whitespaceIndex
-      : whitespaceIndex < 0
-        ? explicitSeparatorIndex
-        : Math.min(explicitSeparatorIndex, whitespaceIndex);
+    const separatorIndex = line.search(/[,;\t]/);
     let phone = (separatorIndex < 0 ? line : line.slice(0, separatorIndex))
       .trim()
       .replace(/\D/g, "");
@@ -152,7 +139,7 @@
       .replace(/^\uFEFF/, "")
       .split(/\r\n|\r|\n/)
       .filter((line) => line.trim());
-    const hasHeader = /^(?:(?:telefone|phone_number)\s*[;,]\s*(?:nome|name)|(?:nome|name)\s*[;,]\s*(?:telefone|phone_number)(?:\s*[;,]\s*labels)?)$/i
+    const hasHeader = /^(?:(?:telefone|phone_number)\s*[;,\t]\s*(?:nome|name)|(?:nome|name)\s*[;,\t]\s*(?:telefone|phone_number)(?:\s*[;,\t]\s*labels)?)$/i
       .test((lines[0] || "").trim());
     const countryCode = countryCodeInput.value.replace(/\D/g, "");
     const labels = csvLabelsInput.value.trim();
