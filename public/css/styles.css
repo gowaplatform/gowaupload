@@ -323,6 +323,10 @@ body {
   line-height: 1.5;
 }
 
+.duplicate-log {
+  min-height: 6rem;
+}
+
 .text-input:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;

@@ -41,6 +41,8 @@
   const adjustCsvBtn = document.getElementById("adjustCsvBtn");
   const downloadCsvBtn = document.getElementById("downloadCsvBtn");
   const pasteStatus = document.getElementById("pasteStatus");
+  const duplicateLogSection = document.getElementById("duplicateLogSection");
+  const duplicateLog = document.getElementById("duplicateLog");
 
   function activateTab(tab) {
     tabs.forEach((item) => {
@@ -70,6 +72,8 @@
   });
 
   function updateCsvLineCount() {
+    duplicateLog.value = "";
+    duplicateLogSection.hidden = true;
     const lines = csvText.value.split(/\r\n|\r|\n/);
     if (lines.length > 1001) {
       csvText.value = lines.slice(0, 1001).join("\n");
@@ -109,7 +113,7 @@
     }
   });
 
-  function adjustCsvLine(line, countryCode, labels) {
+  function getCsvPhone(line, countryCode) {
     const separatorIndex = line.search(/[,;\t]/);
     let phone = (separatorIndex < 0 ? line : line.slice(0, separatorIndex))
       .trim()
@@ -117,6 +121,12 @@
     if (countryCode && phone && !phone.startsWith(countryCode)) {
       phone = `${countryCode}${phone}`;
     }
+    return phone;
+  }
+
+  function adjustCsvLine(line, countryCode, labels) {
+    const separatorIndex = line.search(/[,;\t]/);
+    const phone = getCsvPhone(line, countryCode);
     let name = separatorIndex < 0 ? phone : line.slice(separatorIndex + 1).trim();
 
     if (name.startsWith('"')) {
@@ -143,9 +153,19 @@
       .test((lines[0] || "").trim());
     const countryCode = countryCodeInput.value.replace(/\D/g, "");
     const labels = csvLabelsInput.value.trim();
-    const records = lines
-      .slice(hasHeader ? 1 : 0)
-      .map((line) => adjustCsvLine(line, countryCode, labels));
+    const sourceLines = lines.slice(hasHeader ? 1 : 0);
+    const seenPhones = new Set();
+    const duplicates = [];
+    const records = [];
+    sourceLines.forEach((line) => {
+      const phone = getCsvPhone(line, countryCode);
+      if (phone && seenPhones.has(phone)) {
+        duplicates.push(line);
+        return;
+      }
+      if (phone) seenPhones.add(phone);
+      records.push(adjustCsvLine(line, countryCode, labels));
+    });
     const outputLines = [labels ? "name,phone_number,labels" : "name,phone_number", ...records];
     const wasTruncated = outputLines.length > 1001;
 
@@ -154,6 +174,8 @@
     pasteStatus.textContent = wasTruncated
       ? "CSV ajustado; o conteúdo foi limitado a 1001 linhas."
       : `CSV ajustado: ${Math.min(records.length, 1000)} registros.`;
+    duplicateLog.value = duplicates.join("\n");
+    duplicateLogSection.hidden = duplicates.length === 0;
   });
 
   downloadCsvBtn.addEventListener("click", () => {

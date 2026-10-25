@@ -239,6 +239,16 @@
           </div>
         </div>
         <output class="status" id="pasteStatus" aria-live="polite"></output>
+        <div id="duplicateLogSection" hidden>
+          <label class="text-input__label" for="duplicateLog">Registros duplicados (mantido o primeiro número)</label>
+          <textarea
+            class="text-input duplicate-log"
+            id="duplicateLog"
+            rows="4"
+            readonly
+            aria-label="Registros descartados por duplicidade"
+          ></textarea>
+        </div>
       </section>
 
       <section
